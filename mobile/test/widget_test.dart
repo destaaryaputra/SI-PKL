@@ -1,19 +1,28 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mobile/main.dart';
+import 'package:mobile/screens/login_screen.dart';
 
 void main() {
-  testWidgets('menampilkan halaman login SI-PKL', (WidgetTester tester) async {
+  testWidgets('menampilkan halaman login SI-PKL saat belum ada sesi',
+      (WidgetTester tester) async {
+    // Tanpa token tersimpan, splash harus mendarat di halaman login.
+    SharedPreferences.setMockInitialValues({});
     await tester.pumpWidget(const SiPklApp());
+    await tester.pumpAndSettle();
 
-    expect(find.text('SI-PKL'), findsOneWidget);
+    // Logo SI-PKL kini berupa gambar, jadi cek lewat asset-nya.
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Image &&
+            widget.image == const AssetImage('assets/brand/logo_full.png'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Login'), findsOneWidget);
+    expect(find.byType(LoginScreen), findsOneWidget);
   });
 }
