@@ -51,6 +51,8 @@ class AdminPengajuanController extends Controller
 
             $pengajuan->update([
                 'status' => 'disetujui',
+                // Tahun penempatan dicatat saat disetujui (FR-17).
+                'tahun' => now()->year,
                 'catatan' => $request->input('catatan', $pengajuan->catatan),
                 'diperiksa_oleh' => $request->user()->id,
                 'diperiksa_pada' => now(),
