@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
+import 'admin_dashboard_screen.dart';
 import 'dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -37,18 +39,24 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await _apiService.login(
+      final hasil = await _apiService.login(
         _nisController.text.trim(),
         _passwordController.text,
       );
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        MaterialPageRoute(
+          builder: (_) => hasil.peran == 'admin'
+              ? const AdminDashboardScreen()
+              : const DashboardScreen(),
+        ),
       );
     } on ApiException catch (error) {
+      if (!mounted) return;
       setState(() => _errorMessage = error.message);
-    } catch (_) {
-      setState(() => _errorMessage = 'Tidak dapat terhubung ke server.');
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = 'Tidak dapat terhubung ke server: $error');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -66,34 +74,59 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(Icons.location_on, size: 64),
-                  const SizedBox(height: 16),
-                  Text(
-                    'SI-PKL',
-                    style: Theme.of(context).textTheme.headlineLarge,
+                  Image.asset(
+                    'assets/brand/logo_full.png',
+                    width: 140,
+                    height: 140,
                   ),
-                  const Text('Sistem Informasi Pencari Lokasi PKL'),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Sistem Informasi Pencari Lokasi PKL',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
                   const SizedBox(height: 32),
                   TextField(
                     controller: _nisController,
                     keyboardType: TextInputType.text,
-                    decoration: const InputDecoration(
-                      labelText: 'NIS',
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: const InputDecoration(labelText: 'NIS'),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _passwordController,
                     obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: const InputDecoration(labelText: 'Password'),
                   ),
                   if (_errorMessage != null) ...[
                     const SizedBox(height: 12),
-                    Text(_errorMessage!, style: TextStyle(color: Colors.red)),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.statusDitolak.bg,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 18,
+                            color: AppTheme.statusDitolak.fg,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyle(
+                                color: AppTheme.statusDitolak.fg,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                   const SizedBox(height: 24),
                   FilledButton(
