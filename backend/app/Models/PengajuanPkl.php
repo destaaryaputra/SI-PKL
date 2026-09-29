@@ -15,6 +15,7 @@ class PengajuanPkl extends Model
         'pengguna_id',
         'industri_id',
         'status',
+        'tahun',
         'catatan',
         'diperiksa_oleh',
         'diperiksa_pada',

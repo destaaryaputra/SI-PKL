@@ -12,7 +12,10 @@ class IndustriController extends Controller
     {
         $data = $request->validate([
             'cari' => ['nullable', 'string', 'max:100'],
+            // Accept either single jurusan_id or an array of jurusan_ids
             'jurusan_id' => ['nullable', 'integer', 'exists:jurusan,id'],
+            'jurusan_ids' => ['nullable', 'array'],
+            'jurusan_ids.*' => ['integer', 'exists:jurusan,id'],
         ]);
 
         $industri = Industri::query()
@@ -27,8 +30,13 @@ class IndustriController extends Controller
                         ->orWhere('alamat', 'like', "%{$cari}%");
                 });
             })
-            ->when($data['jurusan_id'] ?? null, function ($query, int $jurusanId): void {
-                $query->whereHas('jurusan', fn ($query) => $query->whereKey($jurusanId));
+            ->when(!empty($data['jurusan_id']) || !empty($data['jurusan_ids']), function ($query) use ($data) {
+                if (!empty($data['jurusan_id'])) {
+                    $query->whereHas('jurusan', fn ($q) => $q->whereKey($data['jurusan_id']));
+                }
+                if (!empty($data['jurusan_ids'])) {
+                    $query->whereHas('jurusan', fn ($q) => $q->whereIn('id', $data['jurusan_ids']));
+                }
             })
             ->orderBy('nama')
             ->get()

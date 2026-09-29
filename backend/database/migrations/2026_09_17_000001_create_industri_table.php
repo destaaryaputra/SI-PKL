@@ -14,7 +14,7 @@ return new class extends Migration
             $table->text('alamat');
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-            $table->unsignedInteger('kuota');
+            $table->unsignedBigInteger('kuota');
             $table->timestamps();
         });
     }
