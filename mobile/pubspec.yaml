@@ -1,5 +1,5 @@
 name: mobile
-description: "A new Flutter project."
+description: "SI-PKL - Sistem Informasi Pencari Lokasi PKL"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -38,6 +38,7 @@ dependencies:
   shared_preferences: ^2.5.5
   flutter_map: ^8.3.2
   latlong2: ^0.10.1
+  url_launcher: ^6.3.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -48,6 +49,26 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.6
+
+# Ikon aplikasi (di-generate ke semua ukuran mipmap Android).
+flutter_launcher_icons:
+  image_path: "assets/brand/logo_pin.png"
+  android: "launcher_icon"
+  adaptive_icon_background: "#FFFFFF"
+  # Foreground pakai versi berpadding supaya aman dari mask lingkaran launcher.
+  adaptive_icon_foreground: "assets/brand/logo_pin_splash.png"
+  adaptive_icon_monochrome: "assets/brand/logo_pin_splash.png"
+
+# Splash screen native (layar awal sebelum Flutter jalan, termasuk Android 12+).
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: "assets/brand/logo_full.png"
+  android_12:
+    color: "#FFFFFF"
+    image: "assets/brand/logo_pin_splash.png"
+    icon_background_color: "#FFFFFF"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -59,6 +80,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/brand/logo_full.png
+    - assets/brand/logo_pin.png
+    # sumber/ = bahan mentah icon/splash generator, sengaja tidak di-bundle.
 
   # To add assets to your application, add an assets section, like this:
   # assets:
