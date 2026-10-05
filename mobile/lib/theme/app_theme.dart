@@ -1,13 +1,79 @@
 import 'package:flutter/material.dart';
 
+/// Token motion — durasi & kurva standar animasi di seluruh app.
+///
+/// Aturan gaya: halus & modern. Slide hanya 12px, scale tombol 0.98,
+/// tanpa bounce. Durasi feedback interaktif ≤ 500ms (intro splash
+/// satu-satunya pengecualian).
+abstract final class Motion {
+  /// Press scale, chip — feedback kecil.
+  static const Duration cepat = Duration(milliseconds: 200);
+
+  /// Masuk item, switcher, badge.
+  static const Duration sedang = Duration(milliseconds: 350);
+
+  /// Section besar, chart.
+  static const Duration lambat = Duration(milliseconds: 500);
+
+  /// Transisi antar layar.
+  static const Duration transisi = Duration(milliseconds: 280);
+
+  /// Kurva standar — hampir semua animasi.
+  static const Curve std = Curves.easeOutCubic;
+
+  /// Kurva penekanan — transisi layar.
+  static const Curve emph = Curves.easeInOutCubic;
+
+  /// Delay stagger per indeks: 40ms/item, maks 320ms supaya
+  /// item terakhir tidak nunggu lama.
+  static Duration stagger(int index) =>
+      Duration(milliseconds: (index * 40).clamp(0, 320));
+}
+
+/// Transisi layar standar SI-PKL: slide tipis dari kanan + fade, 280ms.
+///
+/// Didaftarkan global lewat [PageTransitionsTheme] di [AppTheme.light],
+/// sehingga semua route — named maupun [MaterialPageRoute] langsung —
+/// otomatis kena tanpa ubah tiap titik navigasi.
+class GeserMemudar extends PageTransitionsBuilder {
+  const GeserMemudar();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    // Hormati reduce-motion perangkat (aksesibilitas).
+    if (MediaQuery.disableAnimationsOf(context)) return child;
+
+    final curved = CurvedAnimation(parent: animation, curve: Motion.emph);
+    return FadeTransition(
+      opacity: curved,
+      child: SlideTransition(
+        position: Tween<Offset>(begin: const Offset(0.04, 0), end: Offset.zero)
+            .animate(curved),
+        child: child,
+      ),
+    );
+  }
+}
+
 /// Design system SI-PKL.
 ///
-/// Identitas warna diambil dari logo (pin navy #042B53).
+/// Identitas warna diambil dari logo: navy #042B53 (pin) + teal (aksen).
 /// Kartu flat ber-outline, radius sedang, shadow minim —
-/// hierarki dibangun lewat warna & tipografi, bukan dekorasi.
+/// hierarki dibangun lewat warna & tipografi, bukan dekorasi berlebih.
 abstract final class AppTheme {
   /// Navy brand dari logo pin.
   static const Color navy = Color(0xFF042B53);
+
+  /// Teal aksen brand — untuk highlight lembut & indikator terpilih.
+  static const Color teal = Color(0xFF0D9488);
+  static const Color tealGelap = Color(0xFF0F766E);
+  static const Color tealLembut = Color(0xFFCCFBF1);
 
   // Warna status (fg = teks/ikon, bg = latar) — konsisten di semua layar.
   static const statusMenunggu = (fg: Color(0xFF92400E), bg: Color(0xFFFEF3C7));
@@ -29,17 +95,40 @@ abstract final class AppTheme {
         _ => Icons.help_outline,
       };
 
+  /// Gradasi brand navy → teal (drawer header, avatar ring).
+  static const LinearGradient gradasiBrand = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [navy, tealGelap],
+  );
+
   static ThemeData get light {
     final scheme = ColorScheme.fromSeed(
       seedColor: navy,
       // Netral cenderung dingin agar senada dengan navy.
       brightness: Brightness.light,
+    ).copyWith(
+      // Aksen teal — tombol utama tetap navy, teal dipakai untuk
+      // indikator terpilih & highlight kecil.
+      secondary: teal,
+      onSecondary: Colors.white,
+      secondaryContainer: tealLembut,
+      onSecondaryContainer: tealGelap,
     );
 
     final base = ThemeData(useMaterial3: true, colorScheme: scheme);
 
     return base.copyWith(
       scaffoldBackgroundColor: const Color(0xFFF6F7F9),
+      // Slide+fade halus untuk SEMUA route (named & MaterialPageRoute).
+      pageTransitionsTheme: const PageTransitionsTheme(builders: {
+        TargetPlatform.android: GeserMemudar(),
+        TargetPlatform.iOS: GeserMemudar(),
+        TargetPlatform.fuchsia: GeserMemudar(),
+        TargetPlatform.linux: GeserMemudar(),
+        TargetPlatform.macOS: GeserMemudar(),
+        TargetPlatform.windows: GeserMemudar(),
+      }),
       appBarTheme: AppBarTheme(
         backgroundColor: scheme.surface,
         surfaceTintColor: Colors.transparent,
@@ -99,12 +188,15 @@ abstract final class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: scheme.surface,
-        indicatorColor: scheme.primaryContainer,
+        // Pil terpilih soft-teal: navy tetap warna aksi, teal penanda pilihan.
+        indicatorColor: scheme.secondaryContainer,
         height: 68,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
-            color: states.contains(WidgetState.selected) ? scheme.onPrimaryContainer : scheme.onSurfaceVariant,
+            color: states.contains(WidgetState.selected)
+                ? scheme.onSecondaryContainer
+                : scheme.onSurfaceVariant,
           ),
         ),
         labelTextStyle: WidgetStateProperty.resolveWith(
@@ -173,6 +265,90 @@ class StatusBadge extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Ikon dalam kotak rounded berwarna lembut — untuk leading list/menu
+/// agar lebih rapi daripada ikon polos.
+class IkonKotak extends StatelessWidget {
+  const IkonKotak({
+    super.key,
+    required this.icon,
+    required this.fg,
+    required this.bg,
+    this.size = 40,
+  });
+
+  final IconData icon;
+  final Color fg;
+  final Color bg;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
+      child: Icon(icon, color: fg, size: size * 0.5),
+    );
+  }
+}
+
+/// Latar dekoratif brand: gradasi navy-teal sangat lembut + lingkaran
+/// transparan. Dipakai splash & login agar terasa satu identitas.
+class LatarBrand extends StatelessWidget {
+  const LatarBrand({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFFE7EFF6), Color(0xFFF6F7F9), Colors.white],
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -80,
+            right: -60,
+            child: _LingkaranDekor(warna: AppTheme.teal.withValues(alpha: 0.12), size: 220),
+          ),
+          Positioned(
+            bottom: -100,
+            left: -70,
+            child: _LingkaranDekor(warna: AppTheme.navy.withValues(alpha: 0.08), size: 260),
+          ),
+          Positioned(
+            top: 160,
+            left: -40,
+            child: _LingkaranDekor(warna: AppTheme.teal.withValues(alpha: 0.07), size: 120),
+          ),
+          Positioned.fill(child: child),
+        ],
+      ),
+    );
+  }
+}
+
+class _LingkaranDekor extends StatelessWidget {
+  const _LingkaranDekor({required this.warna, required this.size});
+
+  final Color warna;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: warna, shape: BoxShape.circle),
     );
   }
 }

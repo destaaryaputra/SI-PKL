@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'animasi.dart';
+
 /// Tiga tampilan state layar (loading / kosong / error) yang dipakai
 /// bersama oleh semua list & detail, supaya konsisten satu aplikasi.
 ///
@@ -19,17 +21,17 @@ class LoadingView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(
+          ItemMasuk(index: 0, child: const SizedBox(
             width: 28,
             height: 28,
             child: CircularProgressIndicator(strokeWidth: 2.6),
-          ),
+          )),
           if (label != null) ...[
-            const SizedBox(height: 12),
-            Text(
+            ItemMasuk(index: 1, child: const SizedBox(height: 12)),
+            ItemMasuk(index: 2, child: Text(
               label!,
               style: TextStyle(color: warna.onSurfaceVariant, fontSize: 14),
-            ),
+            )),
           ],
         ],
       ),
@@ -59,9 +61,9 @@ class EmptyStateView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: warna.outline),
-            const SizedBox(height: 16),
-            Text(
+            MunculSkala(child: Icon(icon, size: 56, color: warna.outline)),
+            ItemMasuk(index: 1, child: const SizedBox(height: 16)),
+            ItemMasuk(index: 2, child: Text(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -69,14 +71,14 @@ class EmptyStateView extends StatelessWidget {
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
               ),
-            ),
+            )),
             if (message != null) ...[
-              const SizedBox(height: 4),
-              Text(
+              ItemMasuk(index: 3, child: const SizedBox(height: 4)),
+              ItemMasuk(index: 4, child: Text(
                 message!,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: warna.onSurfaceVariant, fontSize: 13),
-              ),
+              )),
             ],
           ],
         ),
