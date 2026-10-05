@@ -26,7 +26,7 @@ class ApiService {
       Uri.parse('${ApiConfig.baseUrl}/login'),
       headers: {'Accept': 'application/json'},
       body: {'nis': nis, 'password': password},
-    );
+    ).timeout(const Duration(seconds: 10));
 
     final body = _decode(response);
     if (response.statusCode != 200) {
@@ -411,6 +411,7 @@ class ApiService {
     required double longitude,
     required int kuota,
     required List<int> jurusanIds,
+    String? logoUrl,
   }) async {
     final response = await _request(
       'POST',
@@ -418,6 +419,7 @@ class ApiService {
       body: {
         'nama': nama,
         'alamat': alamat,
+        'logo_url': logoUrl,
         'latitude': latitude,
         'longitude': longitude,
         'kuota': kuota,
@@ -438,6 +440,7 @@ class ApiService {
     required double longitude,
     required int kuota,
     required List<int> jurusanIds,
+    String? logoUrl,
   }) async {
     final response = await _request(
       'PUT',
@@ -445,6 +448,7 @@ class ApiService {
       body: {
         'nama': nama,
         'alamat': alamat,
+        'logo_url': logoUrl,
         'latitude': latitude,
         'longitude': longitude,
         'kuota': kuota,
