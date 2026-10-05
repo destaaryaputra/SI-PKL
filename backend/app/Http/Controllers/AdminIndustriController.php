@@ -35,6 +35,7 @@ class AdminIndustriController extends Controller
         $data = $request->validate([
             'nama' => ['required', 'string', 'max:150'],
             'alamat' => ['required', 'string', 'max:500'],
+            'logo_url' => ['nullable', 'string', 'max:500'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'kuota' => ['required', 'integer', 'min:1', 'max:1000'],
@@ -46,6 +47,7 @@ class AdminIndustriController extends Controller
             $industri = Industri::create([
                 'nama' => $data['nama'],
                 'alamat' => $data['alamat'],
+                'logo_url' => $data['logo_url'] ?? null,
                 'latitude' => $data['latitude'],
                 'longitude' => $data['longitude'],
                 'kuota' => $data['kuota'],
@@ -66,6 +68,7 @@ class AdminIndustriController extends Controller
         $data = $request->validate([
             'nama' => ['required', 'string', 'max:150'],
             'alamat' => ['required', 'string', 'max:500'],
+            'logo_url' => ['nullable', 'string', 'max:500'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             // Kuota tidak boleh di bawah jumlah terpakai saat ini.
@@ -88,6 +91,7 @@ class AdminIndustriController extends Controller
             $industri->update([
                 'nama' => $data['nama'],
                 'alamat' => $data['alamat'],
+                'logo_url' => $data['logo_url'] ?? null,
                 'latitude' => $data['latitude'],
                 'longitude' => $data['longitude'],
                 'kuota' => $data['kuota'],
@@ -124,6 +128,7 @@ class AdminIndustriController extends Controller
             'id' => $industri->id,
             'nama' => $industri->nama,
             'alamat' => $industri->alamat,
+            'logo_url' => $industri->logo_url,
             'latitude' => $industri->latitude,
             'longitude' => $industri->longitude,
             'kuota' => $industri->kuota,

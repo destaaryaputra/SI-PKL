@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\IndustriController;
 use App\Http\Controllers\JurusanController;
+use App\Http\Controllers\LogoController;
 use App\Http\Controllers\PengajuanPklController;
 use App\Http\Controllers\AdminPengajuanController;
 use App\Http\Controllers\AdminSiswaController;
@@ -14,6 +15,10 @@ use App\Http\Controllers\TempatSekitarController;
 use App\Http\Controllers\RiwayatController;
 
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
+
+// Logo publik (tanpa token): dipakai <img>/Image.network yang tidak bisa
+// mengirim header Authorization. Lewat /api supaya dapat header CORS.
+Route::get('/logo/{file}', [LogoController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/profil', [AuthController::class, 'profil']);

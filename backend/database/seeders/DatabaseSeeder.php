@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
         $pm = Jurusan::create(['nama' => 'Penerbangan']);
 
         // Create Admin
-        $admin = Pengguna::create([
+        Pengguna::create([
             'nis' => 'ADMIN001',
             'nama' => 'Admin SI-PKL',
             'password' => 'password',
@@ -57,9 +57,11 @@ class DatabaseSeeder extends Seeder
         // Create Industri
         // Nama + alamat perusahaan asli di Bandar Lampung; koordinat hasil
         // geocoding OpenStreetMap (Nominatim), titik di jalan terdekat.
+        // Logo via favicon domain resmi perusahaan (layanan publik Google S2).
         $industri1 = Industri::create([
             'nama' => 'Newus Technology',
             'alamat' => 'Jl. Salim Batubara No. 118, Kupang Teba, Tlk. Betung Utara',
+            'logo_url' => '/logo/newus.png',
             'latitude' => -5.4389667,
             'longitude' => 105.2657216,
             'kuota' => 10,
@@ -69,6 +71,7 @@ class DatabaseSeeder extends Seeder
         $industri2 = Industri::create([
             'nama' => 'Microdata Indonesia',
             'alamat' => 'Jl. Endro Suratmin No. 53-F, Way Dadi, Sukarame',
+            'logo_url' => '/logo/microdata.jpg',
             'latitude' => -5.3893467,
             'longitude' => 105.2884412,
             'kuota' => 8,
@@ -108,6 +111,7 @@ class DatabaseSeeder extends Seeder
         $industri6 = Industri::create([
             'nama' => 'Ginktech',
             'alamat' => 'Jl. Way Pengubuan No. 16, Bandar Lampung',
+            'logo_url' => '/logo/ginktech.png',
             'latitude' => -5.4258695,
             'longitude' => 105.2726540,
             'kuota' => 8,
@@ -126,6 +130,7 @@ class DatabaseSeeder extends Seeder
         $industri8 = Industri::create([
             'nama' => 'PT Mandala Lintas Nusa (Nusanet Lampung)',
             'alamat' => 'Jl. Cut Nyak Dien No. 39B, Durian Payung, Tj. Karang Pusat',
+            'logo_url' => '/logo/nusanet.png',
             'latitude' => -5.4186618,
             'longitude' => 105.2498718,
             'kuota' => 10,
@@ -144,6 +149,7 @@ class DatabaseSeeder extends Seeder
         $industri10 = Industri::create([
             'nama' => 'PT Semen Baturaja (Pabrik Panjang)',
             'alamat' => 'Jl. Yos Sudarso Km. 7, Panjang, Bandar Lampung',
+            'logo_url' => '/logo/semen-baturaja.png',
             'latitude' => -5.4787053,
             'longitude' => 105.3284666,
             'kuota' => 15,
@@ -153,6 +159,7 @@ class DatabaseSeeder extends Seeder
         $industri11 = Industri::create([
             'nama' => 'PT Nestle Indonesia (Panjang Factory)',
             'alamat' => 'Kawasan Industri Panjang, Bandar Lampung',
+            'logo_url' => '/logo/nestle.png',
             'latitude' => -5.4523924,
             'longitude' => 105.2595864,
             'kuota' => 12,
@@ -171,6 +178,7 @@ class DatabaseSeeder extends Seeder
         $industri13 = Industri::create([
             'nama' => 'TMSNet',
             'alamat' => 'Jl. Imam Bonjol Gg. Waluh V No. 9, Kemiling Raya, Kemiling',
+            'logo_url' => '/logo/tmsnet.png',
             'latitude' => -5.3721751,
             'longitude' => 105.2124318,
             'kuota' => 6,

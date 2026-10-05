@@ -14,6 +14,7 @@ class Industri extends Model
     protected $fillable = [
         'nama',
         'alamat',
+        'logo_url',
         'latitude',
         'longitude',
         'kuota',

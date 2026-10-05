@@ -63,6 +63,7 @@ class IndustriController extends Controller
             'id' => $industri->id,
             'nama' => $industri->nama,
             'alamat' => $industri->alamat,
+            'logo_url' => $industri->logo_url,
             'latitude' => $industri->latitude,
             'longitude' => $industri->longitude,
             'kuota' => $industri->kuota,
