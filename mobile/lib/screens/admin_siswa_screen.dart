@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
 import '../widgets/state_views.dart';
 import 'form_siswa_screen.dart';
 
@@ -45,7 +46,7 @@ class _AdminSiswaScreenState extends State<AdminSiswaScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _bukaFormTambah,
-        icon: const Icon(Icons.person_add),
+        icon: Icon(Icons.person_add, color: AppTheme.navy),
         label: const Text('Tambah'),
       ),
       body: Column(
@@ -114,13 +115,10 @@ class _AdminSiswaScreenState extends State<AdminSiswaScreen> {
                       final jurusan = siswa['jurusan'] as Map<String, dynamic>?;
                       return Card(
                         child: ListTile(
-                          leading: CircleAvatar(
-                            child: Text(
-                              (siswa['nama'] as String? ?? '?')
-                                  .characters
-                                  .first
-                                  .toUpperCase(),
-                            ),
+                          leading: IkonKotak(
+                            icon: Icons.person,
+                            fg: AppTheme.navy,
+                            bg: const Color(0xFFE7EFF6),
                           ),
                           title: Text(siswa['nama'] as String? ?? '-'),
                           subtitle: Text(
@@ -187,7 +185,9 @@ class _AdminSiswaScreenState extends State<AdminSiswaScreen> {
             child: const Text('Batal'),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Hapus'),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
 import '../widgets/state_views.dart';
 
 /// Daftar jurusan (wireframe #16): daftar + ikon edit & hapus per baris.
@@ -34,7 +35,7 @@ class _AdminJurusanScreenState extends State<AdminJurusanScreen> {
       appBar: AppBar(title: const Text('Data Jurusan')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _tambah,
-        icon: const Icon(Icons.add),
+        icon: Icon(Icons.add, color: AppTheme.tealGelap),
         label: const Text('Tambah'),
       ),
       body: RefreshIndicator(
@@ -78,8 +79,10 @@ class _AdminJurusanScreenState extends State<AdminJurusanScreen> {
                 final jurusan = data[index];
                 return Card(
                   child: ListTile(
-                    leading: const CircleAvatar(
-                      child: Icon(Icons.school),
+                    leading: IkonKotak(
+                      icon: Icons.school,
+                      fg: AppTheme.tealGelap,
+                      bg: AppTheme.tealLembut,
                     ),
                     title: Text(jurusan['nama'] as String? ?? '-'),
                     subtitle: Text(

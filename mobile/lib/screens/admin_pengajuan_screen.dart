@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/animasi.dart';
 import '../widgets/state_views.dart';
 import 'admin_pengajuan_detail_screen.dart';
 
@@ -78,21 +79,27 @@ class _AdminPengajuanScreenState extends State<AdminPengajuanScreen> {
                 final pengguna = item['pengguna'] as Map<String, dynamic>?;
                 final status = item['status'] as String? ?? '-';
 
-                return Card(
-                  child: ListTile(
-                    onTap: () => _bukaDetail(item),
-                    leading: CircleAvatar(
-                      backgroundColor: AppTheme.warnaStatus(status).bg,
-                      child: Icon(
-                        AppTheme.ikonStatus(status),
-                        color: AppTheme.warnaStatus(status).fg,
+                return ItemMasuk(
+                  index: index,
+                  child: Card(
+                    child: ListTile(
+                      onTap: () => _bukaDetail(item),
+                      leading: Builder(
+                        builder: (context) {
+                          final (:fg, :bg) = AppTheme.warnaStatus(status);
+                          return IkonKotak(
+                            icon: AppTheme.ikonStatus(status),
+                            fg: fg,
+                            bg: bg,
+                          );
+                        },
                       ),
+                      title: Text(industri?['nama'] as String? ?? 'Industri'),
+                      subtitle: Text(
+                        '${pengguna?['nama'] ?? '-'} • ${pengguna?['nis'] ?? '-'}',
+                      ),
+                      trailing: StatusBadge(status: status),
                     ),
-                    title: Text(industri?['nama'] as String? ?? 'Industri'),
-                    subtitle: Text(
-                      '${pengguna?['nama'] ?? '-'} • ${pengguna?['nis'] ?? '-'}',
-                    ),
-                    trailing: StatusBadge(status: status),
                   ),
                 );
               },

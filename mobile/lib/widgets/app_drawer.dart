@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../screens/admin_industri_screen.dart';
-import '../screens/admin_jurusan_screen.dart';
-import '../screens/admin_pengajuan_screen.dart';
-import '../screens/admin_siswa_screen.dart';
-import '../screens/status_pengajuan_screen.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../screens/status_pengajuan_screen.dart';
 
 /// Drawer dengan menu sesuai peran pengguna:
 /// - Siswa: Dashboard, Status Pengajuan, Profil, Logout
@@ -19,8 +14,8 @@ class AppDrawer extends StatelessWidget {
 
   Future<String> _ambilPeran() async {
     try {
-      final preferences = await SharedPreferences.getInstance();
-      return preferences.getString('peran') ?? 'siswa';
+      final peran = await ApiService().cekSesi();
+      return peran ?? 'siswa';
     } catch (_) {
       return 'siswa';
     }
@@ -46,22 +41,29 @@ class AppDrawer extends StatelessWidget {
             padding: EdgeInsets.zero,
             children: <Widget>[
               DrawerHeader(
-                decoration: const BoxDecoration(color: AppTheme.navy),
+                decoration: const BoxDecoration(
+                  color: AppTheme.navy,
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset(
-                      'assets/brand/logo_pin.png',
-                      width: 40,
-                      height: 40,
+                    // Logo lebih kecil dan rapi di drawer
+                    ClipOval(
+                      child: Image.asset(
+                        'assets/brand/logo_full.png',
+                        width: 48,
+                        height: 48,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     const Text(
-                      'SI‑PKL',
+                      'SI-PKL',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 22,
+                        fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -69,7 +71,7 @@ class AppDrawer extends StatelessWidget {
                       isAdmin ? 'Admin / Guru Pembimbing' : 'Siswa',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 13,
+                        fontSize: 11,
                       ),
                     ),
                   ],
@@ -90,14 +92,8 @@ class AppDrawer extends StatelessWidget {
                   leading: const Icon(Icons.assignment),
                   title: const Text('Pengajuan PKL'),
                   onTap: () {
-                    // Tutup drawer lalu push biasa, supaya tombol kembali
-                    // balik ke dashboard (bukan keluar aplikasi).
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const AdminPengajuanScreen(),
-                      ),
-                    );
+                    Navigator.of(context).pushNamed('/admin-pengajuan');
                   },
                 ),
                 const Divider(),
@@ -106,11 +102,7 @@ class AppDrawer extends StatelessWidget {
                   title: const Text('Data Siswa'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const AdminSiswaScreen(),
-                      ),
-                    );
+                    Navigator.of(context).pushNamed('/admin-siswa');
                   },
                 ),
                 ListTile(
@@ -118,11 +110,7 @@ class AppDrawer extends StatelessWidget {
                   title: const Text('Data Jurusan'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const AdminJurusanScreen(),
-                      ),
-                    );
+                    Navigator.of(context).pushNamed('/admin-jurusan');
                   },
                 ),
                 ListTile(
@@ -130,11 +118,7 @@ class AppDrawer extends StatelessWidget {
                   title: const Text('Data Industri'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const AdminIndustriScreen(),
-                      ),
-                    );
+                    Navigator.of(context).pushNamed('/admin-industri');
                   },
                 ),
               ] else ...[

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../widgets/animasi.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/grafik.dart';
 import '../widgets/state_views.dart';
 
 import '../services/api_service.dart';
-import 'admin_pengajuan_screen.dart';
-import 'admin_siswa_screen.dart';
-import 'admin_jurusan_screen.dart';
-import 'admin_industri_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -31,13 +29,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     await _statistikFuture;
   }
 
+  /// Parsing defensif statistik dari backend (bisa int/String/bool/null).
+  static int _parseAngka(dynamic v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    if (v is double) return v.toInt();
+    if (v is String) return int.tryParse(v) ?? 0;
+    if (v is bool) return v ? 1 : 0;
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Dashboard Admin'),
-      ),
+      appBar: AppBar(title: const Text('Dashboard Admin')),
       body: RefreshIndicator(
         onRefresh: _muatUlang,
         child: FutureBuilder<Map<String, dynamic>>(
@@ -59,74 +65,130 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             }
 
             final data = snapshot.data!;
+            final dataBulan =
+                (data['pengajuan_per_bulan'] as List<dynamic>? ?? [])
+                    .cast<Map<String, dynamic>>();
+            final topIndustri =
+                (data['top_industri'] as List<dynamic>? ?? [])
+                    .cast<Map<String, dynamic>>();
+            final siswaPerJurusan =
+                (data['siswa_per_jurusan'] as List<dynamic>? ?? [])
+                    .cast<Map<String, dynamic>>();
+            final kuotaIndustri =
+                (data['kuota_industri'] as List<dynamic>? ?? [])
+                    .cast<Map<String, dynamic>>();
+
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Text(
-                  'Ringkasan',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
+                // Section Ringkasan — card stat bertahap di dalam
+                ItemMasuk(index: 0, child: _JudulSeksi(teks: 'Ringkasan')),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    _StatCard(
-                      label: 'Total Siswa',
-                      nilai: '${data['total_siswa'] ?? 0}',
-                      icon: Icons.people,
-                      warna: AppTheme.navy,
-                    ),
-                    const SizedBox(width: 8),
-                    _StatCard(
-                      label: 'Total Industri',
-                      nilai: '${data['total_industri'] ?? 0}',
-                      icon: Icons.business,
-                      warna: AppTheme.navy,
-                    ),
-                  ],
+                ItemMasuk(
+                  index: 1,
+                  child: Row(
+                    children: [
+                      _StatCard(
+                        label: 'Total Siswa',
+                        nilai: '${data['total_siswa'] ?? 0}',
+                        icon: Icons.people,
+                        warna: AppTheme.tealGelap,
+                        bg: AppTheme.tealLembut,
+                      ),
+                      const SizedBox(width: 8),
+                      _StatCard(
+                        label: 'Total Industri',
+                        nilai: '${data['total_industri'] ?? 0}',
+                        icon: Icons.business,
+                        warna: AppTheme.navy,
+                        bg: const Color(0xFFE7EFF6),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    _StatCard(
-                      label: 'Menunggu',
-                      nilai: '${data['pengajuan_menunggu'] ?? 0}',
-                      icon: Icons.pending,
-                      warna: AppTheme.statusMenunggu.fg,
-                    ),
-                    const SizedBox(width: 8),
-                    _StatCard(
-                      label: 'Disetujui',
-                      nilai: '${data['pengajuan_disetujui'] ?? 0}',
-                      icon: Icons.check_circle,
-                      warna: AppTheme.statusDisetujui.fg,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Grafik pengajuan per bulan (wireframe #13).
-                Text(
-                  'Pengajuan per Bulan',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
+                ItemMasuk(
+                  index: 2,
+                  child: Row(
+                    children: [
+                      _StatCard(
+                        label: 'Menunggu',
+                        nilai: '${data['pengajuan_menunggu'] ?? 0}',
+                        icon: Icons.pending,
+                        warna: AppTheme.statusMenunggu.fg,
+                        bg: AppTheme.statusMenunggu.bg,
                       ),
+                      const SizedBox(width: 8),
+                      _StatCard(
+                        label: 'Disetujui',
+                        nilai: '${data['pengajuan_disetujui'] ?? 0}',
+                        icon: Icons.check_circle,
+                        warna: AppTheme.statusDisetujui.fg,
+                        bg: AppTheme.statusDisetujui.bg,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 16),
-                _GrafikBulanan(
-                  dataBulan:
-                      (data['pengajuan_per_bulan'] as List<dynamic>? ?? [])
-                          .cast<Map<String, dynamic>>(),
-                ),
-
                 const SizedBox(height: 24),
-                // Menu pintasan kelola (wireframe #13-19).
-                _MenuKelola(
-                  onPengajuan: () => _buka(const AdminPengajuanScreen()),
-                  onSiswa: () => _buka(const AdminSiswaScreen()),
-                  onJurusan: () => _buka(const AdminJurusanScreen()),
-                  onIndustri: () => _buka(const AdminIndustriScreen()),
+                ItemMasuk(index: 3, child: _JudulSeksi(teks: 'Status Pengajuan')),
+                const SizedBox(height: 16),
+                ItemMasuk(
+                  index: 4,
+                  child: GrafikDonat(
+                    menunggu: _parseAngka(data['pengajuan_menunggu']),
+                    disetujui: _parseAngka(data['pengajuan_disetujui']),
+                    ditolak: _parseAngka(data['pengajuan_ditolak']),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ItemMasuk(index: 5, child: _JudulSeksi(teks: 'Pengajuan per Bulan')),
+                const SizedBox(height: 16),
+                ItemMasuk(
+                  index: 6,
+                  child: GrafikBatangBertumpuk(
+                    dataBulan: dataBulan,
+                    onBukaTabel: () => tampilkanTabelData(
+                      context,
+                      judul: 'Pengajuan per bulan',
+                      kolom: ['Bulan', 'Menunggu', 'Disetujui', 'Ditolak'],
+                      baris: [
+                        for (final bulan in dataBulan)
+                          [
+                            '${bulan['label']}',
+                            '${bulan['menunggu'] ?? 0}',
+                            '${bulan['disetujui'] ?? 0}',
+                            '${bulan['ditolak'] ?? 0}',
+                          ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ItemMasuk(index: 7, child: _JudulSeksi(teks: 'Top 5 Industri Dilamar')),
+                const SizedBox(height: 16),
+                ItemMasuk(
+                  index: 8,
+                  child: DaftarBarHorizontal(
+                    data: topIndustri,
+                    satuan: 'pengajuan',
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ItemMasuk(index: 9, child: _JudulSeksi(teks: 'Siswa per Jurusan')),
+                const SizedBox(height: 16),
+                ItemMasuk(
+                  index: 10,
+                  child: DaftarBarHorizontal(
+                    data: siswaPerJurusan,
+                    satuan: 'siswa',
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ItemMasuk(index: 11, child: _JudulSeksi(teks: 'Kuota Industri')),
+                const SizedBox(height: 16),
+                ItemMasuk(
+                  index: 12,
+                  child: DaftarMeterKuota(data: kuotaIndustri),
                 ),
               ],
             );
@@ -135,10 +197,34 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       ),
     );
   }
+}
 
-  void _buka(Widget screen) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => screen),
+/// Judul seksi dengan penanda teal — sama seperti di layar detail siswa.
+class _JudulSeksi extends StatelessWidget {
+  const _JudulSeksi({required this.teks});
+
+  final String teks;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 3,
+          height: 18,
+          decoration: BoxDecoration(
+            color: AppTheme.teal,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          teks,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+      ],
     );
   }
 }
@@ -149,12 +235,14 @@ class _StatCard extends StatelessWidget {
     required this.nilai,
     required this.icon,
     required this.warna,
+    required this.bg,
   });
 
   final String label;
   final String nilai;
   final IconData icon;
   final Color warna;
+  final Color bg;
 
   @override
   Widget build(BuildContext context) {
@@ -167,18 +255,18 @@ class _StatCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(icon, color: warna, size: 28),
+                  IkonKotak(icon: icon, fg: warna, bg: bg),
                   const Spacer(),
-                  Text(
-                    nilai,
+                  AngkaBerjalan(
+                    nilai: int.tryParse(nilai) ?? 0,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: warna,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: warna,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall,
@@ -191,164 +279,3 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-/// Grafik batang sederhana tanpa dependency tambahan:
-/// setiap bulan = satu bar vertikal (menunggu + disetujui + ditolak).
-class _GrafikBulanan extends StatelessWidget {
-  const _GrafikBulanan({required this.dataBulan});
-
-  final List<Map<String, dynamic>> dataBulan;
-
-  @override
-  Widget build(BuildContext context) {
-    final maksimal = dataBulan.fold<int>(0, (maks, bulan) {
-      final total = ((bulan['menunggu'] as num? ?? 0) +
-              (bulan['disetujui'] as num? ?? 0) +
-              (bulan['ditolak'] as num? ?? 0))
-          .toInt();
-      return total > maks ? total : maks;
-    });
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: dataBulan.isEmpty || maksimal == 0
-            ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('Belum ada pengajuan dalam 6 bulan terakhir.'),
-                ),
-              )
-            : Column(
-                children: [
-                  SizedBox(
-                    height: 140,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: dataBulan.map((bulan) {
-                        final menunggu = (bulan['menunggu'] as num? ?? 0).toInt();
-                        final disetujui =
-                            (bulan['disetujui'] as num? ?? 0).toInt();
-                        final ditolak = (bulan['ditolak'] as num? ?? 0).toInt();
-                        final total = menunggu + disetujui + ditolak;
-                        // Segmen tumpuk per status — warna sama dengan
-                        // badge status di seluruh aplikasi.
-                        Widget segmen(int n, Color warna) => Container(
-                              height: n / maksimal * 106.0,
-                              width: 28,
-                              color: warna,
-                            );
-
-                        return Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '$total',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                const SizedBox(height: 4),
-                                Container(
-                                  width: 28,
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(6),
-                                    ),
-                                    color: AppTheme.statusMenunggu.fg,
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      if (ditolak > 0)
-                                        segmen(ditolak, AppTheme.statusDitolak.fg),
-                                      if (disetujui > 0)
-                                        segmen(
-                                            disetujui, AppTheme.statusDisetujui.fg),
-                                      Container(
-                                        height: menunggu / maksimal * 106.0,
-                                        color: AppTheme.statusMenunggu.fg,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: dataBulan
-                        .map(
-                          (bulan) => Expanded(
-                            child: Center(
-                              child: Text(
-                                bulan['label'] as String? ?? '-',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-}
-
-/// Menu pintasan ke layar kelola.
-class _MenuKelola extends StatelessWidget {
-  const _MenuKelola({
-    required this.onPengajuan,
-    required this.onSiswa,
-    required this.onJurusan,
-    required this.onIndustri,
-  });
-
-  final VoidCallback onPengajuan;
-  final VoidCallback onSiswa;
-  final VoidCallback onJurusan;
-  final VoidCallback onIndustri;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.assignment),
-            title: const Text('Kelola Pengajuan PKL'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: onPengajuan,
-          ),
-          const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.people),
-            title: const Text('Data Siswa'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: onSiswa,
-          ),
-          const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.school),
-            title: const Text('Data Jurusan'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: onJurusan,
-          ),
-          const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.business),
-            title: const Text('Data Industri'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: onIndustri,
-          ),
-        ],
-      ),
-    );
-  }
-}

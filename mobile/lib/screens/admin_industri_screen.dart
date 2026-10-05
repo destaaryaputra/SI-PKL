@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../models/industri.dart';
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
 import '../widgets/state_views.dart';
 import 'form_industri_screen.dart';
 
@@ -45,7 +47,7 @@ class _AdminIndustriScreenState extends State<AdminIndustriScreen> {
       appBar: AppBar(title: const Text('Data Industri')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _bukaFormTambah,
-        icon: const Icon(Icons.add_business),
+        icon: Icon(Icons.add_business, color: AppTheme.navy),
         label: const Text('Tambah'),
       ),
       body: Column(
@@ -113,10 +115,44 @@ class _AdminIndustriScreenState extends State<AdminIndustriScreen> {
                       final industri = data[index];
                       final jurusanList =
                           industri['jurusan'] as List<dynamic>? ?? [];
+                      final logoUrl = Industri.resolveLogoUrl(
+                        industri['logo_url'] as String?,
+                      );
                       return Card(
                         child: ListTile(
-                          leading: const CircleAvatar(
-                            child: Icon(Icons.business),
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: AppTheme.tealLembut,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: logoUrl == null
+                                  ? const Icon(
+                                      Icons.business,
+                                      color: AppTheme.tealGelap,
+                                    )
+                                  : Image.network(
+                                      logoUrl,
+                                      width: 40,
+                                      height: 40,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (_, child, progress) =>
+                                          progress == null
+                                              ? child
+                                              : const Icon(
+                                                  Icons.business,
+                                                  color: AppTheme.tealGelap,
+                                                ),
+                                      errorBuilder: (_, _, _) =>
+                                          const Icon(
+                                            Icons.business,
+                                            color: AppTheme.tealGelap,
+                                          ),
+                                    ),
+                            ),
                           ),
                           title: Text(industri['nama'] as String? ?? '-'),
                           subtitle: Text(
