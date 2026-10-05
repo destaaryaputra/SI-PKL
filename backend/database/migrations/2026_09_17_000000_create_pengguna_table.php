@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('nis')->unique();
             $table->string('nama');
             $table->string('password');
+            $table->string('remember_token')->nullable();
             $table->foreignId('jurusan_id')->nullable()->constrained('jurusan')->nullOnDelete();
             $table->enum('peran', ['siswa', 'admin'])->default('siswa');
             $table->timestamps();
@@ -29,13 +30,14 @@ return new class extends Migration
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('nis')->primary();
+            $table->foreign('nis')->references('nis')->on('pengguna')->onDelete('cascade');
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('pengguna_id')->nullable()->index();
+            $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');

@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('pengguna_id')->constrained('pengguna')->cascadeOnDelete();
             $table->foreignId('industri_id')->constrained('industri')->cascadeOnDelete();
             $table->enum('status', ['menunggu', 'disetujui', 'ditolak'])->default('menunggu');
+            $table->year('tahun')->nullable()->index();
             $table->text('catatan')->nullable();
             $table->foreignId('diperiksa_oleh')->nullable()->constrained('pengguna')->nullOnDelete();
             $table->timestamp('diperiksa_pada')->nullable();
