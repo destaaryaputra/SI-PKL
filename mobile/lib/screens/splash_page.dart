@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
 import 'dashboard_screen.dart';
 import 'login_screen.dart';
 import 'admin_dashboard_screen.dart';
@@ -75,50 +76,55 @@ class _SplashPageState extends State<SplashPage>
   Widget build(BuildContext context) {
     final warna = Theme.of(context).colorScheme;
     return Scaffold(
-      body: FadeTransition(
-        opacity: _fadeIn,
-        child: ScaleTransition(
-          scale: _scale,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo SI-PKL (pin + nama) dari aset.
-                Image.asset(
-                  'assets/brand/logo_full.png',
-                  width: 220,
-                  height: 220,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Sistem Informasi Pencari Lokasi PKL',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: warna.onSurfaceVariant,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Expanded(
-                        child: CircularProgressIndicator(strokeWidth: 2.5),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _status,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: warna.onSurfaceVariant,
-                            ),
-                      ),
-                    ],
+      body: LatarBrand(
+        child: FadeTransition(
+          opacity: _fadeIn,
+          child: ScaleTransition(
+            scale: _scale,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Logo SI-PKL (pin + nama) dari aset.
+                  Image.asset(
+                    'assets/brand/logo_full.png',
+                    width: 220,
+                    height: 220,
+                    fit: BoxFit.contain,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Text(
+                    'Sistem Informasi Pencari Lokasi PKL',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: warna.onSurfaceVariant,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  // Garis aksen teal tipis di bawah tagline.
+                  Container(
+                    width: 48,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: AppTheme.teal,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  const SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CircularProgressIndicator(strokeWidth: 2.5),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    _status,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: warna.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

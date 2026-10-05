@@ -133,12 +133,25 @@ class _RiwayatPenempatanTabState extends State<RiwayatPenempatanTab> {
               padding: const EdgeInsets.all(16),
               children: [
                 for (final tahunData in data) ...[
-                  Text(
-                    '${tahunData['tahun']}',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                  Row(
+                    children: [
+                      Container(
+                        width: 3,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          color: AppTheme.teal,
+                          borderRadius: BorderRadius.circular(2),
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${tahunData['tahun']}',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   ...(tahunData['pengajuan'] as List<dynamic>).map(
@@ -149,9 +162,15 @@ class _RiwayatPenempatanTabState extends State<RiwayatPenempatanTab> {
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
-                          leading: Icon(
-                            AppTheme.ikonStatus(status),
-                            color: AppTheme.warnaStatus(status).fg,
+                          leading: Builder(
+                            builder: (context) {
+                              final (:fg, :bg) = AppTheme.warnaStatus(status);
+                              return IkonKotak(
+                                icon: AppTheme.ikonStatus(status),
+                                fg: fg,
+                                bg: bg,
+                              );
+                            },
                           ),
                           title: Text(industri['nama'] as String? ?? '-'),
                           subtitle: Text(

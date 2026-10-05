@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
+import '../widgets/animasi.dart';
 
 /// Form tambah/edit siswa (wireframe #15).
 class FormSiswaScreen extends StatefulWidget {
@@ -151,7 +152,7 @@ class _FormSiswaScreenState extends State<FormSiswaScreen> {
                 hintText: widget.siswa == null ? 'Minimal 6 karakter' : null,
                 helperText: widget.siswa == null
                     ? null
-                    : 'Kosongkan jika tidak ingin mengganti password.',
+                    : 'Kosongkan jika tidak ingin mengganti password. Harus ada 6 karakter.',
               ),
               obscureText: true,
               validator: (value) {
@@ -163,18 +164,11 @@ class _FormSiswaScreenState extends State<FormSiswaScreen> {
               },
             ),
             const SizedBox(height: 24),
-            FilledButton(
+            TombolMuat(
+              teks: 'Simpan',
               onPressed: _menyimpan ? null : _simpan,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
-              ),
-              child: _menyimpan
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Simpan'),
+              memuat: _menyimpan,
+              pertahankanTeks: false,
             ),
           ],
         ),

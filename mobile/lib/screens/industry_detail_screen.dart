@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/industri.dart';
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/animasi.dart';
 import '../widgets/state_views.dart';
 import 'pengajuan_berhasil_screen.dart';
 import 'pengajuan_gagal_screen.dart';
@@ -148,6 +149,23 @@ class _IndustryDetailScreenState extends State<IndustryDetailScreen> {
     }
   }
 
+/// Placeholder header bila industry tidak punya logo.
+  Widget _placeholderHeader(ColorScheme warna) {
+    return Container(
+      width: 84,
+      height: 84,
+      decoration: BoxDecoration(
+        color: AppTheme.tealLembut,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Icon(
+        Icons.factory_outlined,
+        size: 44,
+        color: AppTheme.tealGelap,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final warna = Theme.of(context).colorScheme;
@@ -179,119 +197,218 @@ class _IndustryDetailScreenState extends State<IndustryDetailScreen> {
                 child: ListView(
                   padding: EdgeInsets.zero,
                   children: [
-                    // Header gambar placeholder (wireframe #7).
-                    Container(
-                      height: 140,
-                      color: warna.surfaceContainerHighest,
-                      child: Icon(
-                        Icons.image_outlined,
-                        size: 48,
-                        color: warna.outline,
+                    // Header gambar: logo perusahaan bila tersedia;
+                    // fallback placeholder (wireframe #7).
+                    ItemMasuk(
+                      index: 0,
+                      child: Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              warna.surfaceContainerHighest,
+                              warna.surfaceContainerLow,
+                            ],
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: industri.logoUrl != null
+                            ? Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: warna.outlineVariant,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppTheme.navy.withValues(
+                                        alpha: 0.08,
+                                      ),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Image.network(
+                                  industri.logoUrl!,
+                                  width: 84,
+                                  height: 84,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, _, _) =>
+                                      _placeholderHeader(warna),
+                                ),
+                              )
+                            : _placeholderHeader(warna),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            industri.nama,
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(
-                                Icons.place_outlined,
-                                size: 18,
-                                color: warna.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  industri.alamat,
-                                  style: TextStyle(
-                                    color: warna.onSurfaceVariant,
+                      child: ItemMasuk(
+                        index: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              industri.nama,
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.place_outlined,
+                                  size: 18,
+                                  color: warna.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    industri.alamat,
+                                    style: TextStyle(
+                                      color: warna.onSurfaceVariant,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            'Kapasitas',
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              _KuotaCard(
-                                label: 'Maksimal',
-                                value: '${industri.kuota}',
-                                color: warna.surfaceContainerHigh,
-                                textColor: warna.onSurface,
-                              ),
-                              const SizedBox(width: 8),
-                              _KuotaCard(
-                                label: 'Terpakai',
-                                value: '${industri.terpakai}',
-                                color: AppTheme.statusMenunggu.bg,
-                                textColor: AppTheme.statusMenunggu.fg,
-                              ),
-                              const SizedBox(width: 8),
-                              _KuotaCard(
-                                label: 'Sisa',
-                                value: '${industri.sisaKuota}',
-                                color: industri.sisaKuota > 0
-                                    ? AppTheme.statusDisetujui.bg
-                                    : AppTheme.statusDitolak.bg,
-                                textColor: industri.sisaKuota > 0
-                                    ? AppTheme.statusDisetujui.fg
-                                    : AppTheme.statusDitolak.fg,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            'Jurusan yang Diterima',
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: industri.jurusan
-                                .map(
-                                  (nama) => Chip(
-                                    label: Text(nama),
-                                    avatar: const Icon(Icons.school, size: 18),
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                          const SizedBox(height: 12),
-                          // Riwayat penempatan (wireframe #7, FR-17).
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.history),
-                            title: const Text('Riwayat Penempatan'),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => RiwayatIndustriScreen(
-                                    industriId: widget.industriId,
-                                    namaIndustri: industri.nama,
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Container(
+                                  width: 3,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.teal,
+                                    borderRadius: BorderRadius.circular(2),
                                   ),
                                 ),
-                              );
-                            },
-                          ),
-                        ],
+                                const SizedBox(width: 8),
+                                ItemMasuk(
+                                  index: 2,
+                                  child: Text(
+                                    'Kapasitas',
+                                    style: Theme.of(context).textTheme.titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                ItemMasuk(
+                                  index: 3,
+                                  child: _KuotaCard(
+                                    label: 'Maksimal',
+                                    value: '${industri.kuota}',
+                                    color: warna.surfaceContainerHigh,
+                                    textColor: warna.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ItemMasuk(
+                                  index: 4,
+                                  child: _KuotaCard(
+                                    label: 'Terpakai',
+                                    value: '${industri.terpakai}',
+                                    color: AppTheme.statusMenunggu.bg,
+                                    textColor: AppTheme.statusMenunggu.fg,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ItemMasuk(
+                                  index: 5,
+                                  child: _KuotaCard(
+                                    label: 'Sisa',
+                                    value: '${industri.sisaKuota}',
+                                    color: industri.sisaKuota > 0
+                                        ? AppTheme.statusDisetujui.bg
+                                        : AppTheme.statusDitolak.bg,
+                                    textColor: industri.sisaKuota > 0
+                                        ? AppTheme.statusDisetujui.fg
+                                        : AppTheme.statusDitolak.fg,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Container(
+                                  width: 3,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.teal,
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ItemMasuk(
+                                  index: 6,
+                                  child: Text(
+                                    'Jurusan yang Diterima',
+                                    style: Theme.of(context).textTheme.titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: industri.jurusan
+                                  .indexed
+                                  .map(
+                                    (entry) {
+                                      final index = entry.$1;
+                                      final nama = entry.$2;
+                                      return ItemMasuk(
+                                        index: 7 + index,
+                                        child: Chip(
+                                          label: Text(nama),
+                                          avatar: const Icon(Icons.school, size: 18),
+                                        ),
+                                      );
+                                    },
+                                  )
+                                  .toList(),
+                            ),
+                            const SizedBox(height: 12),
+                            // Riwayat penempatan (wireframe #7, FR-17).
+                            ItemMasuk(
+                              index: 8 + industri.jurusan.length,
+                              child: Card(
+                                margin: const EdgeInsets.only(top: 4),
+                                child: ListTile(
+                                  leading: IkonKotak(
+                                    icon: Icons.history,
+                                    fg: AppTheme.tealGelap,
+                                    bg: AppTheme.tealLembut,
+                                  ),
+                                  title: const Text('Riwayat Penempatan'),
+                                  trailing: const Icon(Icons.chevron_right),
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => RiwayatIndustriScreen(
+                                          industriId: widget.industriId,
+                                          namaIndustri: industri.nama,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -303,27 +420,27 @@ class _IndustryDetailScreenState extends State<IndustryDetailScreen> {
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                   child: Row(
                     children: [
-                      OutlinedButton.icon(
-                        onPressed: () => _bukaNavigasi(industri),
-                        icon: const Icon(Icons.navigation),
-                        label: const Text('Navigasi'),
+                      ItemMasuk(
+                        index: 9 + industri.jurusan.length,
+                        child: OutlinedButton.icon(
+                          onPressed: () => _bukaNavigasi(industri),
+                          icon: const Icon(Icons.navigation),
+                          label: const Text('Navigasi'),
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: FilledButton.icon(
-                          onPressed: industri.sisaKuota == 0 || _isSubmitting
-                              ? null
-                              : () => _showKonfirmasiDialog(industri),
-                          icon: _isSubmitting
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.send),
-                          label: const Text('Ajukan PKL'),
+                        child: ItemMasuk(
+                          index: 10 + industri.jurusan.length,
+                          child: TombolMuat(
+                            teks: 'Ajukan PKL',
+                            onPressed: industri.sisaKuota == 0 || _isSubmitting
+                                ? null
+                                : () => _showKonfirmasiDialog(industri),
+                            memuat: _isSubmitting,
+                            ikon: Icons.send,
+                            pertahankanTeks: false,
+                          ),
                         ),
                       ),
                     ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/animasi.dart';
 import '../widgets/state_views.dart';
 
 /// Status pengajuan siswa dengan tab filter,
@@ -128,25 +129,34 @@ class _DaftarPengajuan extends StatelessWidget {
           final catatan = item['catatan'] as String?;
           final sudahDiproses = status == 'disetujui' || status == 'ditolak';
 
-          return Card(
-            child: ListTile(
-              leading: Icon(
-                AppTheme.ikonStatus(status),
-                color: AppTheme.warnaStatus(status).fg,
+          return ItemMasuk(
+            index: index,
+            child: Card(
+              child: ListTile(
+                leading: Builder(
+                  builder: (context) {
+                    final (:fg, :bg) = AppTheme.warnaStatus(status);
+                    return IkonKotak(
+                      icon: AppTheme.ikonStatus(status),
+                      fg: fg,
+                      bg: bg,
+                    );
+                  },
+                ),
+                title: Text(industri?['nama'] as String? ?? 'Industri'),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (sudahDiproses && catatan != null && catatan.isNotEmpty)
+                      Text(
+                        'Catatan admin: $catatan',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                  ],
+                ),
+                trailing: StatusBadge(status: status),
               ),
-              title: Text(industri?['nama'] as String? ?? 'Industri'),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (sudahDiproses && catatan != null && catatan.isNotEmpty)
-                    Text(
-                      'Catatan admin: $catatan',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                ],
-              ),
-              trailing: StatusBadge(status: status),
             ),
           );
         },

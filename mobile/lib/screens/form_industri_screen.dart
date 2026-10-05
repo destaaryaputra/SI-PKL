@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
+import '../widgets/animasi.dart';
 
 /// Form tambah/edit industri (wireframe #19).
 class FormIndustriScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _FormIndustriScreenState extends State<FormIndustriScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nama;
   late final TextEditingController _alamat;
+  late final TextEditingController _logoUrl;
   late final TextEditingController _latitude;
   late final TextEditingController _longitude;
   late final TextEditingController _kuota;
@@ -31,6 +33,9 @@ class _FormIndustriScreenState extends State<FormIndustriScreen> {
     final industri = widget.industri;
     _nama = TextEditingController(text: industri?['nama'] as String? ?? '');
     _alamat = TextEditingController(text: industri?['alamat'] as String? ?? '');
+    _logoUrl = TextEditingController(
+      text: industri?['logo_url'] as String? ?? '',
+    );
     _latitude = TextEditingController(
       text: industri?['latitude']?.toString() ?? '',
     );
@@ -51,6 +56,7 @@ class _FormIndustriScreenState extends State<FormIndustriScreen> {
   void dispose() {
     _nama.dispose();
     _alamat.dispose();
+    _logoUrl.dispose();
     _latitude.dispose();
     _longitude.dispose();
     _kuota.dispose();
@@ -80,6 +86,7 @@ class _FormIndustriScreenState extends State<FormIndustriScreen> {
     final data = (
       nama: _nama.text.trim(),
       alamat: _alamat.text.trim(),
+      logoUrl: _logoUrl.text.trim().isEmpty ? null : _logoUrl.text.trim(),
       latitude: double.tryParse(_latitude.text.trim().replaceAll(',', '.')),
       longitude: double.tryParse(_longitude.text.trim().replaceAll(',', '.')),
       kuota: int.tryParse(_kuota.text.trim()),
@@ -90,6 +97,7 @@ class _FormIndustriScreenState extends State<FormIndustriScreen> {
         await _apiService.tambahIndustri(
           nama: data.nama,
           alamat: data.alamat,
+          logoUrl: data.logoUrl,
           latitude: data.latitude!,
           longitude: data.longitude!,
           kuota: data.kuota!,
@@ -103,6 +111,7 @@ class _FormIndustriScreenState extends State<FormIndustriScreen> {
           id: widget.industri!['id'] as int,
           nama: data.nama,
           alamat: data.alamat,
+          logoUrl: data.logoUrl,
           latitude: data.latitude!,
           longitude: data.longitude!,
           kuota: data.kuota!,
@@ -152,6 +161,17 @@ class _FormIndustriScreenState extends State<FormIndustriScreen> {
               maxLines: 3,
               validator: (value) =>
                   (value == null || value.trim().isEmpty) ? 'Alamat wajib diisi.' : null,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _logoUrl,
+              decoration: const InputDecoration(
+                labelText: 'URL Logo (opsional)',
+                hintText: 'Contoh: /logo/newus.png atau https://...',
+                helperText:
+                    'Path logo di server (mis. /logo/nama.png) atau URL lengkap.',
+              ),
+              keyboardType: TextInputType.url,
             ),
             const SizedBox(height: 16),
             Row(
@@ -238,18 +258,11 @@ class _FormIndustriScreenState extends State<FormIndustriScreen> {
                 ),
               ),
             const SizedBox(height: 24),
-            FilledButton(
+            TombolMuat(
+              teks: 'Simpan',
               onPressed: _menyimpan ? null : _simpan,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
-              ),
-              child: _menyimpan
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Simpan'),
+              memuat: _menyimpan,
+              pertahankanTeks: false,
             ),
           ],
         ),

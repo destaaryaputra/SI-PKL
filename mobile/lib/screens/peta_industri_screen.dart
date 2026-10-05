@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -8,6 +10,7 @@ import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 import 'filter_jurusan_screen.dart';
 import 'industry_detail_screen.dart';
+import '../widgets/animasi.dart';
 
 /// Layar utama siswa sesuai wireframe #3 & #6: peta penuh dengan
 /// search bar + filter di atasnya, popup saat marker diketuk,
@@ -79,11 +82,10 @@ class _PetaIndustriScreenState extends State<PetaIndustriScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) =>
-          FilterJurusanSheet(selectedJurusanIds: _selectedJurusanIds),
+      builder: (_) => FilterJurusanSheet(selectedJurusanIds: _selectedJurusanIds),
     );
 
-    if (result == null) return; // Ditutup tanpa menerapkan
+    if (result == null) return;
     setState(() => _selectedJurusanIds = result);
     _muatIndustri();
   }
@@ -128,8 +130,11 @@ class _PetaIndustriScreenState extends State<PetaIndustriScreen> {
               initialZoom: 12,
             ),
             children: [
+              // Tile OpenStreetMap standar: gratis tanpa API key
+              // (Carto kini menuntut API key sehingga peta kosong).
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate:
+                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.sipkl.mobile',
               ),
               MarkerLayer(
@@ -137,16 +142,17 @@ class _PetaIndustriScreenState extends State<PetaIndustriScreen> {
                   final terpilih = item.id == _markerTerpilih?.id;
                   return Marker(
                     point: LatLng(item.latitude, item.longitude),
-                    width: 60,
-                    height: 60,
+                    width: 40,
+                    height: 46,
+                    // Box sepenuhnya di atas titik koordinat (bottom edge
+                    // = titik industri) agar ujung pin tepat menunjuk lokasi.
+                    alignment: Alignment.topCenter,
                     child: GestureDetector(
                       onTap: () => _ketukMarker(item),
-                      child: Icon(
-                        Icons.location_pin,
-                        // Pin navy brand (bukan merah default) — satu bahasa
-                        // visual dengan logo SI-PKL.
-                        color: terpilih ? warna.primary : AppTheme.navy,
-                        size: terpilih ? 44 : 36,
+                      child: _PinIndustri(
+                        logoUrl: item.logoUrl,
+                        warna: terpilih ? warna.primary : AppTheme.navy,
+                        terpilih: terpilih,
                       ),
                     ),
                   );
@@ -154,7 +160,7 @@ class _PetaIndustriScreenState extends State<PetaIndustriScreen> {
               ),
               RichAttributionWidget(
                 attributions: [
-                  TextSourceAttribution('OpenStreetMap contributors',
+                  TextSourceAttribution('© OpenStreetMap contributors',
                       onTap: () {}),
                 ],
               ),
@@ -211,7 +217,7 @@ class _PetaIndustriScreenState extends State<PetaIndustriScreen> {
               left: 16,
               right: 16,
               bottom: 24,
-              child: _PopupMarker(
+              child: _PopupMarkerAnimasi(
                 industri: _markerTerpilih!,
                 onLihatDetail: () => _bukaDetail(_markerTerpilih!),
                 onTutup: () => setState(() => _markerTerpilih = null),
@@ -257,7 +263,31 @@ class _PetaIndustriScreenState extends State<PetaIndustriScreen> {
   }
 }
 
-/// Kartu popup di atas marker (wireframe #6).
+/// Kartu popup di atas marker (wireframe #6) — muncul dengan pop halus.
+class _PopupMarkerAnimasi extends StatelessWidget {
+  const _PopupMarkerAnimasi({
+    required this.industri,
+    required this.onLihatDetail,
+    required this.onTutup,
+  });
+
+  final Industri industri;
+  final VoidCallback onLihatDetail;
+  final VoidCallback onTutup;
+
+  @override
+  Widget build(BuildContext context) {
+    return MunculSkala(
+      child: _PopupMarker(
+        industri: industri,
+        onLihatDetail: onLihatDetail,
+        onTutup: onTutup,
+      ),
+    );
+  }
+}
+
+/// Kartu popup di atas marker — isinya tanpa animasi (dipakai saat direstore state).
 class _PopupMarker extends StatelessWidget {
   const _PopupMarker({
     required this.industri,
@@ -286,6 +316,38 @@ class _PopupMarker extends StatelessWidget {
           children: [
             Row(
               children: [
+                // Logo industri (fallback ikon pabrik) agar popup konsisten
+                // dengan pin peta.
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppTheme.tealLembut,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  alignment: Alignment.center,
+                  child: industri.logoUrl != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            industri.logoUrl!,
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => Icon(
+                              Icons.factory,
+                              size: 20,
+                              color: AppTheme.tealGelap,
+                            ),
+                          ),
+                        )
+                      : Icon(
+                          Icons.factory,
+                          size: 20,
+                          color: AppTheme.tealGelap,
+                        ),
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     industri.nama,
@@ -455,4 +517,85 @@ class _HasilTempatPanel extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Pin map branded untuk industri: logo perusahaan (fallback ikon pabrik)
+/// + ujung panah bawah.
+class _PinIndustri extends StatelessWidget {
+  const _PinIndustri({
+    this.logoUrl,
+    required this.warna,
+    this.terpilih = false,
+  });
+
+  final String? logoUrl;
+  final Color warna;
+  final bool terpilih;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: terpilih ? warna : Colors.black26,
+              width: terpilih ? 3 : 1,
+            ),
+          ),
+          alignment: Alignment.center,
+          child: logoUrl != null
+              ? ClipOval(
+                  child: Image.network(
+                    logoUrl!,
+                    width: 30,
+                    height: 30,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, progress) =>
+                        progress == null ? child : _fallbackIkon(),
+                    errorBuilder: (_, _, _) => _fallbackIkon(),
+                  ),
+                )
+              : _fallbackIkon(),
+        ),
+        const SizedBox(height: 1),
+        CustomPaint(
+          size: const Size(14, 10),
+          painter: _PinArrowPainter(warna),
+        ),
+      ],
+    );
+  }
+
+  Widget _fallbackIkon() {
+    return Icon(
+      Icons.factory,
+      size: 16,
+      color: warna, // navy brand
+    );
+  }
+}
+
+class _PinArrowPainter extends CustomPainter {
+  _PinArrowPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    final path = ui.Path()
+      ..moveTo(size.width * 0.5, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

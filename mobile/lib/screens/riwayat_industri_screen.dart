@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
+import '../widgets/animasi.dart';
 import '../widgets/state_views.dart';
 
 /// Riwayat penempatan PKL di satu industri (wireframe #7, FR-17):
@@ -79,40 +81,64 @@ class _RiwayatIndustriScreenState extends State<RiwayatIndustriScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 for (final tahunData in data) ...[
-                  Text(
-                    '${tahunData['tahun']}',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                  Row(
+                    children: [
+                      Container(
+                        width: 3,
+                        height: 18,
+                        decoration: BoxDecoration(
+                          color: AppTheme.teal,
+                          borderRadius: BorderRadius.circular(2),
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                      ItemMasuk(
+                        index: 0,
+                        child: Text(
+                          '${tahunData['tahun']}',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    '${tahunData['jumlah']} siswa ditempatkan',
-                    style: Theme.of(context).textTheme.bodySmall,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 11),
+                    child: ItemMasuk(
+                      index: 1,
+                      child: Text(
+                        '${tahunData['jumlah']} siswa ditempatkan',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  ...(tahunData['siswa'] as List<dynamic>).map(
-                    (s) {
-                      final siswa = s as Map<String, dynamic>;
-                      return Card(
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            child: Text(
-                              (siswa['nama'] as String? ?? '?')
-                                  .characters
-                                  .first
-                                  .toUpperCase(),
+                  for (final siswa in tahunData['siswa'] as List<dynamic>)
+                      ItemMasuk(
+                        index: 0,
+                        child: Card(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: AppTheme.tealLembut,
+                              foregroundColor: AppTheme.tealGelap,
+                              child: Text(
+                                (siswa['nama'] as String? ?? '?')
+                                    .characters
+                                    .first
+                                    .toUpperCase(),
+                              ),
+                            ),
+                            title: Text(siswa['nama'] as String? ?? '-'),
+                            subtitle: Text(
+                              'NIS ${siswa['nis'] ?? '-'}'
+                              '${siswa['jurusan'] != null ? ' • ${siswa['jurusan']}' : ''}',
                             ),
                           ),
-                          title: Text(siswa['nama'] as String? ?? '-'),
-                          subtitle: Text(
-                            'NIS ${siswa['nis'] ?? '-'}'
-                            '${siswa['jurusan'] != null ? ' • ${siswa['jurusan']}' : ''}',
-                          ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
                   const SizedBox(height: 4),
                 ],
               ],

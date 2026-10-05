@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
+import '../widgets/animasi.dart';
+import '../widgets/state_views.dart';
 
 class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
@@ -71,17 +74,26 @@ class _ProfilScreenState extends State<ProfilScreen> {
           future: _profilFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return const LoadingView(label: 'Memuat profil...');
             }
             if (snapshot.hasError) {
-              return Center(
-                child: Text('Gagal memuat profil: ${snapshot.error}'),
+              return ListView(
+                children: [
+                  const SizedBox(height: 80),
+                  ErrorView(
+                    message: 'Gagal memuat profil: ${snapshot.error}',
+                    onRetry: _loadProfil,
+                  ),
+                ],
               );
             }
 
             final pengguna = snapshot.data?['pengguna'] as Map<String, dynamic>?;
             if (pengguna == null) {
-              return const Center(child: Text('Data profil tidak ditemukan'));
+              return const EmptyStateView(
+                icon: Icons.person_off_outlined,
+                title: 'Data profil tidak ditemukan',
+              );
             }
 
             final nama = pengguna['nama'] as String? ?? '-';
@@ -92,86 +104,123 @@ class _ProfilScreenState extends State<ProfilScreen> {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // Avatar Section
-                Center(
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                        child: Icon(
-                          Icons.person,
-                          size: 60,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                // Avatar Section — cincin gradasi navy-teal mengelilingi avatar.
+                ItemMasuk(
+                  index: 0,
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: AppTheme.gradasiBrand,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                            child: CircleAvatar(
+                              radius: 54,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primaryContainer,
+                              child: Icon(
+                                Icons.person,
+                                size: 54,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        nama,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        nis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-                      const SizedBox(height: 8),
-                      Chip(
-                        label: Text(namaJurusan),
-                        avatar: const Icon(Icons.school, size: 18),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        Text(
+                          nama,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          nis,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Chip(
+                          label: Text(namaJurusan),
+                          avatar: Icon(Icons.school,
+                              size: 18, color: AppTheme.tealGelap),
+                          side: const BorderSide(color: AppTheme.tealLembut),
+                          backgroundColor: AppTheme.tealLembut,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
-
                 // Menu Items
-                Card(
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.assignment),
-                        title: const Text('Status Pengajuan'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          Navigator.of(context).pushNamed('/status');
-                        },
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.info_outline),
-                        title: const Text('Tentang Aplikasi'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          showAboutDialog(
-                            context: context,
-                            applicationName: 'SI-PKL',
-                            applicationVersion: '1.0.0',
-                            applicationLegalese: '© 2026 SI-PKL\n\nSistem Informasi Pencari Lokasi PKL',
-                            children: [
-                              const SizedBox(height: 16),
-                              const Text(
-                                'Aplikasi ini membantu siswa mencari dan mengajukan tempat PKL dengan mudah.',
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
-                        title: Text(
-                          'Logout',
-                          style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ItemMasuk(
+                  index: 1,
+                  child: Card(
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: IkonKotak(
+                            icon: Icons.assignment,
+                            fg: AppTheme.tealGelap,
+                            bg: AppTheme.tealLembut,
+                          ),
+                          title: const Text('Status Pengajuan'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            Navigator.of(context).pushNamed('/status');
+                          },
                         ),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: _handleLogout,
-                      ),
-                    ],
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: IkonKotak(
+                            icon: Icons.info_outline,
+                            fg: AppTheme.navy,
+                            bg: const Color(0xFFE7EFF6),
+                          ),
+                          title: const Text('Tentang Aplikasi'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            showAboutDialog(
+                              context: context,
+                              applicationName: 'SI-PKL',
+                              applicationVersion: '1.0.0',
+                              applicationLegalese: '© 2026 SI-PKL\n\nSistem Informasi Pencari Lokasi PKL',
+                              children: [
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'Aplikasi ini membantu siswa mencari dan mengajukan tempat PKL dengan mudah.',
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: IkonKotak(
+                            icon: Icons.logout,
+                            fg: Theme.of(context).colorScheme.error,
+                            bg: AppTheme.statusDitolak.bg,
+                          ),
+                          title: Text(
+                            'Logout',
+                            style: TextStyle(color: Theme.of(context).colorScheme.error),
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: _handleLogout,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
