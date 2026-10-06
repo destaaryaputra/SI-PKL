@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Industri;
 use App\Models\Jurusan;
+use App\Models\PengajuanPkl;
 use App\Models\Pengguna;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -184,5 +185,30 @@ class DatabaseSeeder extends Seeder
             'kuota' => 6,
         ]);
         $industri13->jurusan()->attach([$tkj->id]);
+
+        // Create Pengajuan PKL (data dummy — status campur biar dashboard & riwayat hidup)
+        $admin = Pengguna::where('nis', 'ADMIN001')->first();
+
+        $pengajuans = [
+            // Desta (akun demo) — 1 disetujui (riwayat), 1 menunggu (status pengajuan)
+            ['nis' => '2413025058', 'industri' => $industri1,  'status' => 'disetujui', 'catatan' => 'Diterima di Newus Technology.',            'reviewed' => true],
+            ['nis' => '2413025058', 'industri' => $industri8,  'status' => 'menunggu',  'catatan' => null,                                          'reviewed' => false],
+            ['nis' => '2413025001', 'industri' => $industri2,  'status' => 'disetujui', 'catatan' => 'Diterima di Microdata Indonesia.',           'reviewed' => true],
+            ['nis' => '2413025002', 'industri' => $industri6,  'status' => 'ditolak',   'catatan' => 'Kuota penuh, silakan pilih industri lain.',  'reviewed' => true],
+            ['nis' => '2413025003', 'industri' => $industri4,  'status' => 'menunggu',  'catatan' => null,                                          'reviewed' => false],
+            ['nis' => '2413025004', 'industri' => $industri13, 'status' => 'disetujui', 'catatan' => 'Diterima di TMSNet.',                        'reviewed' => true],
+        ];
+
+        foreach ($pengajuans as $i => $p) {
+            PengajuanPkl::create([
+                'pengguna_id' => Pengguna::where('nis', $p['nis'])->first()->id,
+                'industri_id' => $p['industri']->id,
+                'status' => $p['status'],
+                'tahun' => 2026,
+                'catatan' => $p['catatan'],
+                'diperiksa_oleh' => $p['reviewed'] ? $admin->id : null,
+                'diperiksa_pada' => $p['reviewed'] ? now()->subDays(7 - $i) : null,
+            ]);
+        }
     }
 }
