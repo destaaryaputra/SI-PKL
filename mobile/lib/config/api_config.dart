@@ -9,7 +9,7 @@ class ApiConfig {
   /// - Android emulator: 10.0.2.2 adalah alias untuk 127.0.0.1 PC host.
   /// - Perangkat fisik (lokal): IP PC via `--dart-define=API_IP=...`
   /// - Produksi (online): Gunakan `--dart-define=API_URL=https://...`
-  static const String _mode = 'fisik'; // 'emulator', 'fisik', atau 'online'
+  static const String _mode = 'online'; // 'emulator', 'fisik', atau 'online'
 
   static const String _lanIp = String.fromEnvironment(
     'API_IP',
