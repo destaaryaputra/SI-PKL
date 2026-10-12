@@ -48,14 +48,14 @@ class Industri {
   /// Ubah path logo dari API menjadi URL penuh yang bisa diunduh aplikasi.
   ///
   /// Backend mengirim path relatif (mis. `/logo/newus.png`). File itu
-  /// digabungkan dengan [ApiConfig.baseUrl] sehingga lewat route
-  /// `/api/logo/{file}` — file statis di root server tidak punya header
-  /// CORS sehingga `Image.network` di Flutter web selalu gagal.
-  /// URL absolut (http/https) dilewatkan apa adanya.
+  /// digabungkan dengan base URL situs (tanpa `/api`) sehingga lewat route
+  /// `/logo/{file}` — file statis di root server punya header CORS yang benar.
   static String? resolveLogoUrl(String? logoUrl) {
     if (logoUrl == null || logoUrl.isEmpty) return null;
     if (logoUrl.startsWith('http')) return logoUrl;
     final path = logoUrl.startsWith('/') ? logoUrl : '/$logoUrl';
-    return '${ApiConfig.baseUrl}$path';
+    // baseUrl selalu berakhir '/api' untuk semua mode; buang '/api' untuk root situs
+    final siteBase = ApiConfig.baseUrl.replaceFirst(RegExp(r'/api$'), '');
+    return '$siteBase$path';
   }
 }

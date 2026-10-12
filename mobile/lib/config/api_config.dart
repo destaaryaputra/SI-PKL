@@ -20,7 +20,7 @@ class ApiConfig {
 
   static const String _productionUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'https://api.sipkl.com/api',
+    defaultValue: 'https://destaarya269.helioho.st/api/',
   );
 
   static String get baseUrl {
