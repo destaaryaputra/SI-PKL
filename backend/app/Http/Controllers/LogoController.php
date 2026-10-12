@@ -31,6 +31,9 @@ class LogoController extends Controller
 
         abort_unless($aman, 404);
 
-        return response()->file($path);
+        return response()->file($path, [
+            'Access-Control-Allow-Origin' => '*',
+            'Cross-Origin-Resource-Policy' => 'cross-origin',
+        ]);
     }
 }
