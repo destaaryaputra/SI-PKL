@@ -196,6 +196,7 @@ class _IndustryDetailScreenState extends State<IndustryDetailScreen> {
               Expanded(
                 child: ListView(
                   padding: EdgeInsets.zero,
+                  shrinkWrap: true,
                   children: [
                     // Header gambar: logo perusahaan bila tersedia;
                     // fallback placeholder (wireframe #7).
@@ -302,37 +303,43 @@ class _IndustryDetailScreenState extends State<IndustryDetailScreen> {
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                ItemMasuk(
-                                  index: 3,
-                                  child: _KuotaCard(
-                                    label: 'Maksimal',
-                                    value: '${industri.kuota}',
-                                    color: warna.surfaceContainerHigh,
-                                    textColor: warna.onSurface,
+                                Expanded(
+                                  child: ItemMasuk(
+                                    index: 3,
+                                    child: _KuotaCard(
+                                      label: 'Maksimal',
+                                      value: '${industri.kuota}',
+                                      color: warna.surfaceContainerHigh,
+                                      textColor: warna.onSurface,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                ItemMasuk(
-                                  index: 4,
-                                  child: _KuotaCard(
-                                    label: 'Terpakai',
-                                    value: '${industri.terpakai}',
-                                    color: AppTheme.statusMenunggu.bg,
-                                    textColor: AppTheme.statusMenunggu.fg,
+                                Expanded(
+                                  child: ItemMasuk(
+                                    index: 4,
+                                    child: _KuotaCard(
+                                      label: 'Terpakai',
+                                      value: '${industri.terpakai}',
+                                      color: AppTheme.statusMenunggu.bg,
+                                      textColor: AppTheme.statusMenunggu.fg,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                ItemMasuk(
-                                  index: 5,
-                                  child: _KuotaCard(
-                                    label: 'Sisa',
-                                    value: '${industri.sisaKuota}',
-                                    color: industri.sisaKuota > 0
-                                        ? AppTheme.statusDisetujui.bg
-                                        : AppTheme.statusDitolak.bg,
-                                    textColor: industri.sisaKuota > 0
-                                        ? AppTheme.statusDisetujui.fg
-                                        : AppTheme.statusDitolak.fg,
+                                Expanded(
+                                  child: ItemMasuk(
+                                    index: 5,
+                                    child: _KuotaCard(
+                                      label: 'Sisa',
+                                      value: '${industri.sisaKuota}',
+                                      color: industri.sisaKuota > 0
+                                          ? AppTheme.statusDisetujui.bg
+                                          : AppTheme.statusDitolak.bg,
+                                      textColor: industri.sisaKuota > 0
+                                          ? AppTheme.statusDisetujui.fg
+                                          : AppTheme.statusDitolak.fg,
+                                    ),
                                   ),
                                 ),
                               ],
