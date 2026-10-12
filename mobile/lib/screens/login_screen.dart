@@ -194,16 +194,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
                     // Footer brand: satu baris kecil, wajar untuk app institusi.
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.location_on_outlined,
                             size: 14, color: AppTheme.tealGelap),
                         const SizedBox(width: 4),
-                        Text(
-                          'Temukan tempat PKL terbaikmu di Lampung',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: warna.onSurfaceVariant,
-                              ),
+                        Flexible(
+                          child: Text(
+                            'Temukan tempat PKL terbaikmu di Lampung',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: warna.onSurfaceVariant,
+                                ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),

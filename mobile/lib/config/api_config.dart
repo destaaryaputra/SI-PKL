@@ -24,11 +24,11 @@ class ApiConfig {
   );
 
   static String get baseUrl {
-    if (kIsWeb) return 'http://127.0.0.1:8000/api';
+    // Web sekarang juga mengikuti _mode (online/fisik/emulator)
     return switch (_mode) {
       'online' => _productionUrl,
       'fisik' => 'http://$_lanIp:8000/api',
-      _ => 'http://10.0.2.2:8000/api', // emulator
+      _ => kIsWeb ? 'http://127.0.0.1:8000/api' : 'http://10.0.2.2:8000/api', // emulator default
     };
   }
 }
