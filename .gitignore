@@ -1,0 +1,10 @@
+# Abaikan semua folder di root kecuali backend dan mobile
+/*
+!backend/
+!mobile/
+!README.md
+!AI_DECLARATION.md
+!.gitignore
+# PDF dan file proposal diabaikan
+*.pdf
+*.txt
