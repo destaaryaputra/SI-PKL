@@ -202,5 +202,5 @@ Row(
 > 4. Semua kesalahan yang dihasilkan AI telah saya deteksi, memahami akar masalahnya, dan memperbaiki secara manual.
 > 5. Riwayat commit Git mencerminkan proses pengerjaan bertahap selama 8 pertemuan, bukan unggahan massal.
 
-**Tanda Tangan Digital:** [Nama Lengkap]  
-**Tanggal:** [Tanggal Submit]
+**Tanda Tangan Digital:** Desta Arya Putra 
+**Tanggal:** 20 Oktober 2026
