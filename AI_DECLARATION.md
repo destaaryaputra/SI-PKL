@@ -1,8 +1,8 @@
 # AI_DECLARATION.md — Deklarasi Transparansi Penggunaan AI
 **Project:** SI-PKL (Sistem Informasi Pencari Lokasi PKL)  
 **Mata Kuliah:** Mobile Programming — UTS  
-**Mahasiswa:** [Nama Lengkap] — [NIM]  
-**Tanggal:** [Tanggal Submit, misal: 2026-10-20]
+**Mahasiswa:** [Desta Arya Putra] — [2413025058]  
+**Tanggal:** [20-10-2026]
 
 ---
 
